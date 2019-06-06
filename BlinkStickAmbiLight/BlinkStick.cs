@@ -89,7 +89,7 @@ namespace BlinkStickAmbiLight
 			var blinks = new List<string>();
 			foreach(var blink in BlinkStick.FindAll())
 			{
-				blinks.Add(blink.Serial);
+				blinks.Add(blink.Meta.Serial);
 			}
 			return blinks;
 		}

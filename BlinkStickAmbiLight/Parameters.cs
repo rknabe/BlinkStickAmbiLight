@@ -42,7 +42,7 @@ namespace BlinkStickAmbiLight
 		
 		const bool IsDebug = false;   // debug mode for internal purposes
 		
-		const int RefreshDXTime = 50;
+		const int RefreshDXTime = 150;
 		
 		int RectTransparency = 200;   // Default 200
 	}
