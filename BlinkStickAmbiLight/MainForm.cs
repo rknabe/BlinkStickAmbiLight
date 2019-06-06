@@ -175,6 +175,10 @@ namespace BlinkStickAmbiLight
         /// <param name="rect">Part of the bitmap</param>
         public Color GetAverageColor(Bitmap bmp_source, Rectangle rect)
         {
+            if (bmp_source == null)
+            {
+                return Color.Black;
+            }
             Bitmap regionBitmap = CropImage(bmp_source, rect);
             Color color = GetAverageColor(regionBitmap);
             regionBitmap.Dispose();
@@ -205,6 +209,11 @@ namespace BlinkStickAmbiLight
 
         public Color GetAverageColor(Bitmap bm)
         {
+            if (bm == null)
+            {
+                return Color.Black;
+            }
+
             int width = bm.Width;
             int height = bm.Height;
             int red = 0;
@@ -279,7 +288,11 @@ namespace BlinkStickAmbiLight
 
         public Bitmap CropImage(Bitmap bmp_source, Rectangle rect)
         {
-            return bmp_source.Clone(rect, bmp_source.PixelFormat);
+            if (bmp_source != null)
+            {
+                return bmp_source.Clone(rect, bmp_source.PixelFormat);
+            }
+            return null;
         }
 
         private Rectangle GetScreenRect()
