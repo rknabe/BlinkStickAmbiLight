@@ -34,10 +34,10 @@ namespace BlinkStickAmbiLight
 {
 	public partial class MainForm : Form
 	{
-		private Thread trd;	
-		static readonly object lockobj = new object();
-		
-		public void ToggleThread(bool run)
+		private Thread trd;
+        private AutoResetEvent resetEvent = new System.Threading.AutoResetEvent(false);
+
+        public void ToggleThread(bool run)
 		{
 			Debug.WriteLine("Thread");
 			try
@@ -51,7 +51,7 @@ namespace BlinkStickAmbiLight
 			{
 				trd = new Thread(new ThreadStart(RegionThread));
 				trd.IsBackground = true;
-				trd.Priority = ThreadPriority.AboveNormal;
+				//trd.Priority = ThreadPriority.AboveNormal;
 				if (trd.IsAlive)
 					trd.Join();
 				else
@@ -66,17 +66,12 @@ namespace BlinkStickAmbiLight
 				catch {};
 			}
 		}
-		
-		static void Sleep(int ms)
-		{
-			new System.Threading.AutoResetEvent(false).WaitOne(ms);
-		}
 
 		private void RegionThread()
 		{
 			while (true)
 			{
-				Sleep(RefreshDXTime);
+				resetEvent.WaitOne(RefreshDXTime);
 				if (cbPreview.Checked)
 				{
 					MethodInvoker Calculate = delegate

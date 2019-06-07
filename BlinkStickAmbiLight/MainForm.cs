@@ -26,7 +26,6 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -48,7 +47,6 @@ namespace BlinkStickAmbiLight
         public AboutForm about;
         public Rectangle ScreenRect;
         public Color currentcolor;
-
         public MainForm()
         {
             log4net.Config.XmlConfigurator.Configure();
@@ -58,14 +56,14 @@ namespace BlinkStickAmbiLight
                 log.Debug("Screen (" + screen.DeviceName + ") Resolution: " + screen.WorkingArea.Width.ToString() + " / "
                           + screen.WorkingArea.Height.ToString());
             }
-            try
+            /*try
             {
                 DXInit();
             }
             catch (Exception ex)
             {
                 log.Debug(ex.Message);
-            }
+            }*/
             InitializeComponent();
 
             about = new AboutForm();
@@ -165,7 +163,6 @@ namespace BlinkStickAmbiLight
                     rbAmbilightRegion.Checked = true;
                     break;
             }
-
         }
 
         /// <summary>
@@ -302,62 +299,43 @@ namespace BlinkStickAmbiLight
 
         private void CalculateDXRegions()
         {
-            //			var sw = new Stopwatch();
-            //			sw.Start();
             if (glob.Lighttype != globalsettings.LightTypes.Static)
             {
-                if (DXScreen != null)
+                Bitmap screen = GetImage(GetScreenRect());
+                SetColors(screen);
+                if (screen != null)
                 {
-                    DXScreen.Dispose();
+                    screen.Dispose();
                 }
-
-                DXScreen = GetImage(GetScreenRect());
-                SetColors();
             }
-            if (cbPreview.Checked)
-            {
-
-                if (DXScreen != null)
-                {
-                    DXScreen.Dispose();
-                }
-
-                DXScreen = GetImage(GetScreenRect());
-                SetColors();
-                pbPreview.Image = DXScreen;
-            }
-            //			sw.Stop();
-            //			Debug.WriteLine((1000 / sw.ElapsedMilliseconds).ToString());
         }
 
         public void RefreshPreview()
         {
-            if (nud_top.Value + nud_bottom.Value + nud_left.Value + nud_right.Value > LEDLimit)
-                MessageBox.Show("More than 64 LEDs are not supported!");
-            rf.regions.Clear();
+             if (nud_top.Value + nud_bottom.Value + nud_left.Value + nud_right.Value > LEDLimit)
+                 MessageBox.Show("More than 64 LEDs are not supported!");
+             rf.regions.Clear();
 
-            rf = new RegionFrame((int)nud_top.Value,
-                                 (int)nud_bottom.Value,
-                                 (int)nud_left.Value,
-                                 (int)nud_right.Value, pbPreview.Width, pbPreview.Height, (int)nud_size.Value, (int)nud_shift.Value);
-            CalculateDXRegions();
-            SetColors();
-            pbPreview.Image = DXScreen;
+             rf = new RegionFrame((int)nud_top.Value,
+                                  (int)nud_bottom.Value,
+                                  (int)nud_left.Value,
+                                  (int)nud_right.Value, pbPreview.Width, pbPreview.Height, (int)nud_size.Value, (int)nud_shift.Value);
+             //CalculateDXRegions();
+             //SetColors();
+             //pbPreview.Image = DXScreen;*/
         }
 
         /// <summary>
         /// Set color for any region
         /// </summary>
-        private void SetColors()
+        private void SetColors(Bitmap screen)
         {
-            //var sw = new Stopwatch();
-            //sw.Start();
             byte r;
             byte g;
             byte b;
             currentcolor = Color.Black;
             if (glob.Lighttype == globalsettings.LightTypes.AmbilightScreen)
-                currentcolor = GetAverageColor(DXScreen);
+                currentcolor = GetAverageColor(screen);
             data_leds.Clear();
 
             foreach (var region in rf.regions.OrderBy(o => o.led_id))
@@ -372,7 +350,7 @@ namespace BlinkStickAmbiLight
                         break;
                     case globalsettings.LightTypes.AmbilightRegion:
                     default:
-                        currentcolor = GetAverageColor(DXScreen, bigrect);
+                        currentcolor = GetAverageColor(screen, bigrect);
                         break;
                 }
                 region.color = currentcolor;
@@ -396,8 +374,6 @@ namespace BlinkStickAmbiLight
             }
             if (isOpen)
                 blink.SetColors(0, data_leds.ToArray());
-            //sw.Stop();
-            //Debug.WriteLine(sw.ElapsedMilliseconds.ToString());
         }
 
         void MainFormFormClosing(object sender, FormClosingEventArgs e)
@@ -583,6 +559,7 @@ namespace BlinkStickAmbiLight
                 log.Info("Turning on from Resume");
                 Thread.Sleep(5000);
                 log.Info("Turning on from Resume:refreshing");
+                //DXInit();
                 ToggleThread(true);
                 Thread.Sleep(100);
                 RefreshDevices();
@@ -593,6 +570,7 @@ namespace BlinkStickAmbiLight
                 ToggleThread(false);
                 Thread.Sleep(100);
                 turnOffAllLeds();
+                DXDispose();
             }
         }
     }

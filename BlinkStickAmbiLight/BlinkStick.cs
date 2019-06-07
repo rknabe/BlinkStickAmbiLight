@@ -28,7 +28,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -77,8 +76,14 @@ namespace BlinkStickAmbiLight
 		public void RefreshDevices()
 		{
 			comboBox1.Items.Clear();
-			comboBox1.Items.AddRange(FetchDevices().ToArray());
-			comboBox1.Text = FetchDevices().FirstOrDefault();
+            List<string> devices = FetchDevices();
+            string device = "";
+            if (devices != null && devices.Count > 0)
+            {
+                device = devices[0];
+                comboBox1.Items.AddRange(devices.ToArray());
+            }            
+			comboBox1.Text = device;
 		}
 		
 		/// <summary>
@@ -123,8 +128,7 @@ namespace BlinkStickAmbiLight
 			{
 				isOpen = false;
 				log.Debug(ex.Message);
-			};
-			
+			};			
 		}
 	}
 }

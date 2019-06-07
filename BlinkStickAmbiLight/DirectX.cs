@@ -38,9 +38,9 @@ namespace BlinkStickAmbiLight
 {
     public partial class MainForm : Form
     {
-        static Device d;
-        static Surface s;
-        static Bitmap DXScreen;
+        private static readonly object lockobj = new object();
+        private Device device = null;
+        private Surface surface = null;
 
         private void DXInit()
         {
@@ -56,7 +56,7 @@ namespace BlinkStickAmbiLight
                 present_params.BackBufferHeight = Screen.AllScreens[iScreen].WorkingArea.Height;
                 present_params.BackBufferWidth = Screen.AllScreens[iScreen].WorkingArea.Width;
 
-                d = new Device(new Direct3D(), 0, DeviceType.Hardware, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, present_params);
+                device = new Device(new Direct3D(), 0, DeviceType.Hardware, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, present_params);
             }
             catch (Exception ex)
             {
@@ -66,21 +66,19 @@ namespace BlinkStickAmbiLight
 
         private void DXDispose()
         {
-            if (DXScreen != null)
+            if (surface != null)
             {
-                DXScreen.Dispose();
+                surface.Dispose();
+                surface = null;
             }
-            if (s != null)
+            if (device != null)
             {
-                s.Dispose();
-            }
-            if (d != null)
-            {
-                d.Dispose();
+                device.Dispose();
+                device = null;
             }
         }
 
-        public Bitmap GetImage1(Rectangle rect)
+        public Bitmap GetImage2(Rectangle rect)
         {
             try
             {
@@ -105,27 +103,39 @@ namespace BlinkStickAmbiLight
         /// <param name="rect">Screen rectangle</param>        
         public Bitmap GetImage(Rectangle rect)
         {
+            Bitmap bm = null;
             try
             {
                 lock (lockobj)
                 {
-                    if (s == null)
+                    if (device == null)
                     {
-                        s = Surface.CreateOffscreenPlain(d, rect.Width, rect.Height, Format.A8R8G8B8, Pool.Scratch);
+
+                        DXDispose();
+                        DXInit();
+                    }
+                    if (surface == null)
+                    {
+                        surface = Surface.CreateOffscreenPlain(device, rect.Width, rect.Height, Format.A8R8G8B8, Pool.Scratch);
                     }
 
-                    d.GetFrontBufferData(0, s);
-                    DataRectangle gsx = s.LockRectangle(rect, LockFlags.None);
-                    Bitmap bm = new Bitmap(rect.Width, rect.Height, CalculateStride(rect.Width, PixelFormat.Format32bppPArgb), PixelFormat.Format32bppPArgb, gsx.Data.DataPointer);
+                    device.GetFrontBufferData(0, surface);
+                    DataRectangle gsx = surface.LockRectangle(rect, LockFlags.None);
+                    bm = new Bitmap(rect.Width, rect.Height, CalculateStride(rect.Width, PixelFormat.Format32bppPArgb), PixelFormat.Format32bppPArgb, gsx.Data.DataPointer);
                     //Bitmap thumbnail = (Bitmap)bm.GetThumbnailImage(pbPreview.Width = (Screen.AllScreens[iScreen].Bounds.Width) / preview_factor, pbPreview.Height = Screen.AllScreens[iScreen].Bounds.Height / preview_factor, null, IntPtr.Zero);
                     //bm.Dispose();
-                    s.UnlockRectangle();
+                    surface.UnlockRectangle();
                     return bm;
                 }
             }
             catch (Exception ex)
             {
                 log.Debug("[DirectX GetScreenImage] - " + ex.Message);
+                if (bm != null)
+                {
+                    bm.Dispose();
+                }
+                DXDispose();
                 return null;
             }
         }
