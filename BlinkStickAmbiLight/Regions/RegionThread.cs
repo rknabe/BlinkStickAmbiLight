@@ -72,7 +72,7 @@ namespace BlinkStickAmbiLight
 			while (true)
 			{
 				resetEvent.WaitOne(RefreshDXTime);
-				if (cbPreview.Checked)
+			/*	if (cbPreview.Checked)
 				{
 					MethodInvoker Calculate = delegate
 					{
@@ -85,9 +85,9 @@ namespace BlinkStickAmbiLight
 					catch (Exception) {}
 				}
 				else
-				{
+				{*/
 					CalculateDXRegions();
-				}
+				//}
 			}
 		}
 
@@ -97,14 +97,15 @@ namespace BlinkStickAmbiLight
 		
 		public static int CalculateFrameRate()
 		{
-			if (System.Environment.TickCount - lastTick >= 1000)
+            /*if (System.Environment.TickCount - lastTick >= 1000)
 			{
 				lastFrameRate = frameRate;
 				frameRate = 0;
 				lastTick = System.Environment.TickCount;
 			}
 			frameRate++;
-			return lastFrameRate;
+			return lastFrameRate;*/
+            return 0;
 		}
 	}
 }

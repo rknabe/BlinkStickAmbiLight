@@ -31,61 +31,66 @@ using System.Drawing.Imaging;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
 
-using SlimDX;
-using SlimDX.Direct3D9;
+//using SlimDX;
+//using SlimDX.Direct3D9;
 
 namespace BlinkStickAmbiLight
 {
     public partial class MainForm : Form
     {
-        private static readonly object lockobj = new object();
-        private Device device = null;
-        private Surface surface = null;
+        //private static readonly object lockobj = new object();
+        //private Device device = null;
+        //private Surface surface = null;
 
         private void DXInit()
         {
-            try
-            {
-                var present_params = new PresentParameters();
-                present_params.Windowed = true;
-                present_params.SwapEffect = SwapEffect.Discard;
-                present_params.BackBufferCount = 1;
+            /* try
+             {
+                 var present_params = new PresentParameters();
+                 present_params.Windowed = true;
+                 present_params.SwapEffect = SwapEffect.Discard;
+                 present_params.BackBufferCount = 1;
 
-                present_params.PresentationInterval = PresentInterval.Immediate;
+                 present_params.PresentationInterval = PresentInterval.Immediate;
 
-                present_params.BackBufferHeight = Screen.AllScreens[iScreen].WorkingArea.Height;
-                present_params.BackBufferWidth = Screen.AllScreens[iScreen].WorkingArea.Width;
+                 present_params.BackBufferHeight = Screen.AllScreens[iScreen].WorkingArea.Height;
+                 present_params.BackBufferWidth = Screen.AllScreens[iScreen].WorkingArea.Width;
 
-                device = new Device(new Direct3D(), 0, DeviceType.Hardware, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, present_params);
-            }
-            catch (Exception ex)
-            {
-                log.Debug("[Init DirectX] - " + ex.Message);
-            }
+                 device = new Device(new Direct3D(), 0, DeviceType.Hardware, IntPtr.Zero, CreateFlags.HardwareVertexProcessing, present_params);
+             }
+             catch (Exception ex)
+             {
+                 log.Debug("[Init DirectX] - " + ex.Message);
+             }*/
         }
 
         private void DXDispose()
         {
-            if (surface != null)
-            {
-                surface.Dispose();
-                surface = null;
-            }
-            if (device != null)
-            {
-                device.Dispose();
-                device = null;
-            }
+            /*  if (surface != null)
+              {
+                  surface.Dispose();
+                  surface = null;
+              }
+              if (device != null)
+              {
+                  device.Dispose();
+                  device = null;
+              }*/
         }
 
-        public Bitmap GetImage2(Rectangle rect)
+        public Bitmap GetImage(Rectangle rect)
         {
+            if (rect == null)
+            {
+                log.Debug("rect is null");
+                return null;
+            }
             try
             {
                 Bitmap Screenshot = new Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppRgb);
                 using (Graphics GFXScreenshot = Graphics.FromImage(Screenshot))
                 {
-                    GFXScreenshot.CompositingQuality = CompositingQuality.HighSpeed;
+                    // GFXScreenshot.CompositingQuality = CompositingQuality.HighSpeed;
                     GFXScreenshot.CopyFromScreen(rect.Left, rect.Top, 0, 0, rect.Size, CopyPixelOperation.SourceCopy);
                 }
                 return Screenshot;
@@ -101,7 +106,9 @@ namespace BlinkStickAmbiLight
         /// Get DX screen image
         /// </summary>
         /// <param name="rect">Screen rectangle</param>        
-        public Bitmap GetImage(Rectangle rect)
+        /*
+        public Bitmap
+            GetImage1(Rectangle rect)
         {
             Bitmap bm = null;
             try
@@ -144,6 +151,6 @@ namespace BlinkStickAmbiLight
         {
             int BitsPerPixel = ((int)pf & 0xff00) >> 8;
             return 4 * ((width * BitsPerPixel + 31) / 32);
-        }
+        }*/
     }
 }

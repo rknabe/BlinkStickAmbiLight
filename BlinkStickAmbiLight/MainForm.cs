@@ -185,22 +185,22 @@ namespace BlinkStickAmbiLight
         /// <summary>
         /// Calculate average color
         /// </summary>
-        /// <param name="bmp_source">Bitmap to calculate color from</param>		
-        public Color GetAverageColor1(Bitmap bmp_source)
+        /// <param name="bitmap">Bitmap to calculate color from</param>		
+        public Color GetAverageColor1(Bitmap bitmap)
         {
-            var bmp = new Bitmap(1, 1);
-            using (Graphics g = Graphics.FromImage(bmp))
+            var unitBitmap = new Bitmap(1, 1);
+            using (Graphics g = Graphics.FromImage(unitBitmap))
             {
                 // updated: the Interpolation mode needs to be set to
                 // HighQualityBilinear or HighQualityBicubic or this method
                 // doesn't work at all.  With either setting, the results are
                 // slightly different from the averaging method.
                 g.InterpolationMode = InterpolationMode.HighQualityBilinear;
-                g.DrawImage(bmp_source, new Rectangle(0, 0, 1, 1));
+                g.DrawImage(bitmap, new Rectangle(0, 0, 1, 1));
             }
-            Color pixel = bmp.GetPixel(0, 0);
+            Color pixel = unitBitmap.GetPixel(0, 0);
             // pixel will contain average values for entire orig Bitmap
-            bmp.Dispose();
+            unitBitmap.Dispose();
             return pixel;
         }
 

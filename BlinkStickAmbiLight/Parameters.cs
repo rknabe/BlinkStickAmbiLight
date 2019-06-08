@@ -25,25 +25,21 @@
 */
 #endregion
 
-using System;
 using System.Windows.Forms;
 
 namespace BlinkStickAmbiLight
 {
-	/// <summary>
-	/// Description of Parameters.
-	/// </summary>
-	public partial class MainForm : Form
-	{
-		const int preview_factor = 4; // Default 4
-		const int iScreen = 0; 		  // Higher than 0 (secondary screen etc.) not supported 
-		const int PenWidth = 2;       // Default 2
-		const int LEDLimit = 64;
-		
-		const bool IsDebug = false;   // debug mode for internal purposes
-		
-		const int RefreshDXTime = 150;
-		
-		int RectTransparency = 200;   // Default 200
-	}
+    /// <summary>
+    /// Description of Parameters.
+    /// </summary>
+    public partial class MainForm : Form
+    {
+        const int preview_factor = 4; // Default 4
+        const int iScreen = 0;        // Higher than 0 (secondary screen etc.) not supported 
+        const int PenWidth = 2;       // Default 2
+        const int LEDLimit = 64;
+        const bool IsDebug = false;   // debug mode for internal purposes		
+        const int RefreshDXTime = 200;
+        int RectTransparency = 200;   // Default 200
+    }
 }
