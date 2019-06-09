@@ -30,9 +30,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime;
 using System.Threading;
 using System.Windows.Forms;
-
+using BlinkStickDotNet;
+using LibUsbDotNet.DeviceNotify;
 using log4net;
 using Microsoft.Win32;
 
@@ -41,6 +43,7 @@ namespace BlinkStickAmbiLight
     public partial class MainForm : Form
     {
         private static readonly ILog log = LogManager.GetLogger(typeof(MainForm));
+        private static IDeviceNotifier UsbDeviceNotifier = DeviceNotifier.OpenDeviceNotifier();
         RegionFrame rf;
         bool valueRefresh = false;
         public globalsettings glob;
@@ -50,6 +53,10 @@ namespace BlinkStickAmbiLight
         public MainForm()
         {
             log4net.Config.XmlConfigurator.Configure();
+
+            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(this.SystemEvents_PowerModeChanged);
+            UsbDeviceNotifier.OnDeviceNotify += OnDeviceNotifyEvent;
+
             log.Info("Starting BlinkStick Ambilight v." + Application.ProductVersion);
             foreach (var screen in Screen.AllScreens)
             {
@@ -109,8 +116,6 @@ namespace BlinkStickAmbiLight
                 OpenDevice(comboBox1.Text);
             valueRefresh = true;
             RefreshPreview();
-
-            SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(this.SystemEvents_PowerModeChanged);
         }
 
         /// <summary>
@@ -213,10 +218,10 @@ namespace BlinkStickAmbiLight
 
             int width = bm.Width;
             int height = bm.Height;
-            int red = 0;
-            int green = 0;
-            int blue = 0;
-            int minDiversion = 15; // drop pixels that do not differ by at least minDiversion between color values (white, gray or black)
+            //int red = 0;
+            //int green = 0;
+            //int blue = 0;
+            //int minDiversion = 15; // drop pixels that do not differ by at least minDiversion between color values (white, gray or black)
             int dropped = 0; // keep track of dropped pixels
             long[] totals = new long[] { 0, 0, 0 };
             int bppModifier = bm.PixelFormat == PixelFormat.Format24bppRgb ? 3 : 4; // cutting corners, will fail on anything else but 32 and 24 bit images
@@ -234,19 +239,19 @@ namespace BlinkStickAmbiLight
                     for (int x = 0; x < width; x++)
                     {
                         int idx = (y * stride) + x * bppModifier;
-                        red = p[idx + 2];
-                        green = p[idx + 1];
-                        blue = p[idx];
-                        if (Math.Abs(red - green) > minDiversion || Math.Abs(red - blue) > minDiversion || Math.Abs(green - blue) > minDiversion)
-                        {
-                            totals[2] += red;
-                            totals[1] += green;
-                            totals[0] += blue;
-                        }
-                        else
-                        {
-                            dropped++;
-                        }
+                        totals[2] += p[idx + 2];
+                        totals[1] += p[idx + 1];
+                        totals[0] += p[idx];
+                        //if (Math.Abs(red - green) > minDiversion || Math.Abs(red - blue) > minDiversion || Math.Abs(green - blue) > minDiversion)
+                        //{
+                        // totals[2] += red;
+                        //totals[1] += green;
+                        //totals[0] += blue;
+                        //}
+                        //else
+                        //{
+                        //     dropped++;
+                        //}
                     }
                 }
             }
@@ -260,7 +265,7 @@ namespace BlinkStickAmbiLight
             }
             int avgR = (int)(totals[2] / count);
             int avgG = (int)(totals[1] / count);
-            int avgB = (int)(totals[0] / count);
+            int avgB = (int)(totals[0] / count);            
 
             return Color.FromArgb(avgR, avgG, avgB);
         }
@@ -312,17 +317,17 @@ namespace BlinkStickAmbiLight
 
         public void RefreshPreview()
         {
-             if (nud_top.Value + nud_bottom.Value + nud_left.Value + nud_right.Value > LEDLimit)
-                 MessageBox.Show("More than 64 LEDs are not supported!");
-             rf.regions.Clear();
+            if (nud_top.Value + nud_bottom.Value + nud_left.Value + nud_right.Value > LEDLimit)
+                MessageBox.Show("More than 64 LEDs are not supported!");
+            rf.regions.Clear();
 
-             rf = new RegionFrame((int)nud_top.Value,
-                                  (int)nud_bottom.Value,
-                                  (int)nud_left.Value,
-                                  (int)nud_right.Value, pbPreview.Width, pbPreview.Height, (int)nud_size.Value, (int)nud_shift.Value);
-             //CalculateDXRegions();
-             //SetColors();
-             //pbPreview.Image = DXScreen;*/
+            rf = new RegionFrame((int)nud_top.Value,
+                                 (int)nud_bottom.Value,
+                                 (int)nud_left.Value,
+                                 (int)nud_right.Value, pbPreview.Width, pbPreview.Height, (int)nud_size.Value, (int)nud_shift.Value);
+            //CalculateDXRegions();
+            //SetColors();
+            //pbPreview.Image = DXScreen;*/
         }
 
         /// <summary>
@@ -552,25 +557,58 @@ namespace BlinkStickAmbiLight
             this.Hide();
         }
 
+        private void turnOnBlinkStick(string reason)
+        {
+            log.Info("Turning on from:" + reason);
+            Thread.Sleep(100);
+            log.Info("Turning on: toggleThread:" + reason);
+            //DXInit();
+            ToggleThread(true);
+            log.Info("Turning on: refreshDevices:" + reason);
+            Thread.Sleep(100);
+            RefreshDevices();
+
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
+            log.Debug(string.Format("Memory used: {0:N0}", GC.GetTotalMemory(true)));
+        }
+
+        private void turnOffBlinkStick(string reason)
+        {
+            log.Info("Turning off for:" + reason);
+            ToggleThread(false);
+            Thread.Sleep(100);
+            turnOffAllLeds();
+            DXDispose();
+        }
+
         void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
             if (e.Mode == PowerModes.Resume)
             {
-                log.Info("Turning on from Resume");
-                Thread.Sleep(5000);
-                log.Info("Turning on from Resume:refreshing");
-                //DXInit();
-                ToggleThread(true);
-                Thread.Sleep(100);
-                RefreshDevices();
+                log.Info("Power Resume");
+                //turnOnBlinkStick("Resume");
             }
             else if (e.Mode == PowerModes.Suspend)
             {
-                log.Info("Turning off for Suspend");
-                ToggleThread(false);
-                Thread.Sleep(100);
-                turnOffAllLeds();
-                DXDispose();
+                turnOffBlinkStick("Suspend");
+            }
+        }
+
+        void OnDeviceNotifyEvent(object sender, DeviceNotifyEventArgs e)
+        {
+            // A Device system-level event has occured
+            if (e.Device.IdProduct == BlinkStick.ProductId && e.Device.IdVendor == BlinkStick.VendorId)
+            {
+                log.Debug(e.ToString()); // Dump the event info to output.
+                if (e.EventType == EventType.DeviceRemoveComplete)
+                {
+                    turnOffBlinkStick("Removed");
+                }
+                else if (e.EventType == EventType.DeviceArrival)
+                {
+                    turnOnBlinkStick("Arrival");
+                }
             }
         }
     }

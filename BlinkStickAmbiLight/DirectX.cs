@@ -80,6 +80,7 @@ namespace BlinkStickAmbiLight
 
         public Bitmap GetImage(Rectangle rect)
         {
+            Bitmap screenshot = null;
             if (rect == null)
             {
                 log.Debug("rect is null");
@@ -87,16 +88,20 @@ namespace BlinkStickAmbiLight
             }
             try
             {
-                Bitmap Screenshot = new Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppRgb);
-                using (Graphics GFXScreenshot = Graphics.FromImage(Screenshot))
+                screenshot = new Bitmap(rect.Width, rect.Height, PixelFormat.Format32bppRgb);
+                using (Graphics gfxSreenshot = Graphics.FromImage(screenshot))
                 {
-                    // GFXScreenshot.CompositingQuality = CompositingQuality.HighSpeed;
-                    GFXScreenshot.CopyFromScreen(rect.Left, rect.Top, 0, 0, rect.Size, CopyPixelOperation.SourceCopy);
+                    gfxSreenshot.CompositingQuality = CompositingQuality.HighSpeed;
+                    gfxSreenshot.CopyFromScreen(rect.Left, rect.Top, 0, 0, rect.Size, CopyPixelOperation.SourceCopy);
                 }
-                return Screenshot;
+                return screenshot;
             }
             catch (Exception ex)
             {
+                if (screenshot != null)
+                {
+                    screenshot.Dispose();
+                }
                 log.Debug("GetImage - " + ex.Message);
             }
             return null;

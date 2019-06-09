@@ -32,71 +32,71 @@ using System.Windows.Forms;
 
 namespace BlinkStickAmbiLight
 {
-	public partial class MainForm : Form
-	{
-		private Thread trd;
+    public partial class MainForm : Form
+    {
+        private Thread trd;
         private AutoResetEvent resetEvent = new System.Threading.AutoResetEvent(false);
 
         public void ToggleThread(bool run)
-		{
-			Debug.WriteLine("Thread");
-			try
-			{
-				// stop Thread if it is already running
-				trd.Abort();
-			}
-			catch {};
-			
-			if (run)
-			{
-				trd = new Thread(new ThreadStart(RegionThread));
-				trd.IsBackground = true;
-				//trd.Priority = ThreadPriority.AboveNormal;
-				if (trd.IsAlive)
-					trd.Join();
-				else
-					trd.Start();
-			}
-			else
-			{
-				try
-				{
-					trd.Abort();
-				}
-				catch {};
-			}
-		}
+        {
+            Debug.WriteLine("Thread");
+            try
+            {
+                // stop Thread if it is already running
+                trd.Abort();
+            }
+            catch { };
 
-		private void RegionThread()
-		{
-			while (true)
-			{
-				resetEvent.WaitOne(RefreshDXTime);
-			/*	if (cbPreview.Checked)
-				{
-					MethodInvoker Calculate = delegate
-					{
-						CalculateDXRegions();
-					};
-					try
-					{
-						Invoke(Calculate); 
-					}
-					catch (Exception) {}
-				}
-				else
-				{*/
-					CalculateDXRegions();
-				//}
-			}
-		}
+            if (run)
+            {
+                trd = new Thread(new ThreadStart(RegionThread));
+                trd.IsBackground = true;
+                //trd.Priority = ThreadPriority.AboveNormal;
+                if (trd.IsAlive)
+                    trd.Join();
+                else
+                    trd.Start();
+            }
+            else
+            {
+                try
+                {
+                    trd.Abort();
+                }
+                catch { };
+            }
+        }
 
-		private static int lastTick;
-		private static int lastFrameRate;
-		private static int frameRate;
-		
-		public static int CalculateFrameRate()
-		{
+        private void RegionThread()
+        {
+            while (true)
+            {
+                resetEvent.WaitOne(RefreshDXTime);
+                /*	if (cbPreview.Checked)
+                    {
+                        MethodInvoker Calculate = delegate
+                        {
+                            CalculateDXRegions();
+                        };
+                        try
+                        {
+                            Invoke(Calculate); 
+                        }
+                        catch (Exception) {}
+                    }
+                    else
+                    {*/
+                CalculateDXRegions();
+                //}
+            }
+        }
+
+        //private static int lastTick;
+        //private static int lastFrameRate;
+        //private static int frameRate;
+
+        public static int CalculateFrameRate()
+        {
             /*if (System.Environment.TickCount - lastTick >= 1000)
 			{
 				lastFrameRate = frameRate;
@@ -106,6 +106,6 @@ namespace BlinkStickAmbiLight
 			frameRate++;
 			return lastFrameRate;*/
             return 0;
-		}
-	}
+        }
+    }
 }

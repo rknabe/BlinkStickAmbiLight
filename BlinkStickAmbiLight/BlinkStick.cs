@@ -35,100 +35,109 @@ using BlinkStickDotNet;
 
 namespace BlinkStickAmbiLight
 {
-	/// <summary>
-	/// Description of BlinkStick.
-	/// </summary>
-	public partial class MainForm : Form
-	{
-		public static BlinkStick blink;
-		bool isOpen = false;
-		
-		byte[] data_off = new byte[576] 
-		{
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-			0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-		};
-		
-		public List<byte> data_leds = new List<byte>();
-		
-		public void RefreshDevices()
-		{
-			comboBox1.Items.Clear();
+    /// <summary>
+    /// Description of BlinkStick.
+    /// </summary>
+    public partial class MainForm : Form
+    {
+        public static BlinkStick blink;
+        bool isOpen = false;
+
+        byte[] data_off = new byte[576]
+        {
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+            0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+        };
+
+        public List<byte> data_leds = new List<byte>();
+
+        public void RefreshDevices()
+        {
+            comboBox1.Items.Clear();
             List<string> devices = FetchDevices();
             string device = "";
             if (devices != null && devices.Count > 0)
             {
                 device = devices[0];
                 comboBox1.Items.AddRange(devices.ToArray());
-            }            
-			comboBox1.Text = device;
-		}
-		
-		/// <summary>
+            }
+            comboBox1.Text = device;
+        }
+
+        /// <summary>
         /// Get all connected devices
         /// </summary>
-		public List<string> FetchDevices()
-		{
-			var blinks = new List<string>();
-			foreach(var blink in BlinkStick.FindAll())
-			{
-				blinks.Add(blink.Meta.Serial);
-			}
-			return blinks;
-		}
-		
-		/// <summary>
+        private List<string> FetchDevices()
+        {
+            var blinks = new List<string>();
+            foreach (var blink in BlinkStick.FindAll())
+            {
+                blinks.Add(blink.Meta.Serial);
+            }
+            return blinks;
+        }
+
+        /// <summary>
         /// Open BlinkStick device
         /// </summary>
         /// <param name="serial">SerialNo of BlinkStick to open</param>
-		public void OpenDevice(string serial)
-		{
-			try
-			{
-				Debug.WriteLine("Serial: " + serial);
-				blink = serial == "" ? BlinkStick.FindFirst() : BlinkStick.FindBySerial(serial);
-				
-				blink.OpenDevice();
-			}
-			catch (Exception ex)
-			{
-				log.Debug(ex.Message);
-			}
-			
-			try
-			{
-				Thread.Sleep(100);
-				if (blink.GetMode() < 2)
-					blink.SetMode(2);
-				isOpen = true;
-			}
-			catch (Exception ex) 
-			{
-				isOpen = false;
-				log.Debug(ex.Message);
-			};			
-		}
-	}
+        public void OpenDevice(string serial)
+        {
+            try
+            {
+                isOpen = false;
+                Debug.WriteLine("Serial: " + serial);
+                if (blink != null)
+                {
+                    blink.Dispose();
+                }
+                blink = serial == "" ? BlinkStick.FindFirst() : BlinkStick.FindBySerial(serial);
+                blink.OpenDevice();
+            }
+            catch (Exception ex)
+            {
+                log.Debug(ex.Message);
+                blink.Dispose();
+                blink = null;
+            }
+
+            if (blink != null)
+            {
+                try
+                {
+                    Thread.Sleep(100);
+                    if (blink.GetMode() < 2)
+                        blink.SetMode(2);
+                    isOpen = true;
+                }
+                catch (Exception ex)
+                {
+                    isOpen = false;
+                    log.Debug(ex.Message);
+                };
+            }
+        }
+    }
 }
