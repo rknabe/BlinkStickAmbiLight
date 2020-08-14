@@ -119,8 +119,11 @@ namespace BlinkStickAmbiLight
             catch (Exception ex)
             {
                 log.Debug(ex.Message);
-                blink.Dispose();
-                blink = null;
+                if (blink != null)
+                {
+                    blink.Dispose();
+                    blink = null;
+                }                
             }
 
             if (blink != null)

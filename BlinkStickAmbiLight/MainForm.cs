@@ -560,17 +560,17 @@ namespace BlinkStickAmbiLight
         private void turnOnBlinkStick(string reason)
         {
             log.Info("Turning on from:" + reason);
-            Thread.Sleep(100);
+            Thread.Sleep(500);
             log.Info("Turning on: toggleThread:" + reason);
             //DXInit();
             ToggleThread(true);
             log.Info("Turning on: refreshDevices:" + reason);
-            Thread.Sleep(100);
+            Thread.Sleep(200);
             RefreshDevices();
 
-            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            GC.Collect();
-            log.Debug(string.Format("Memory used: {0:N0}", GC.GetTotalMemory(true)));
+            //GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            //GC.Collect();
+            //log.Debug(string.Format("Memory used: {0:N0}", GC.GetTotalMemory(true)));
         }
 
         private void turnOffBlinkStick(string reason)
